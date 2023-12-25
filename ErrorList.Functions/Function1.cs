@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -23,25 +22,32 @@ namespace ErrorList.Functions
         [Function(nameof(Function1))]
         public async Task Run([BlobTrigger("samples-workitems/{name}", Connection = "ErrorHistoriesStorage")] Stream stream, string name)
         {
+            // データの読み込み
             using var blobStreamReader = new StreamReader(stream);
 
+            // CSVの設定
             var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 HasHeaderRecord = false,
                 BadDataFound = null,
                 MissingFieldFound = null,
             };
+            // CSVの読み込み
             using var csv = new CsvReader(reader: blobStreamReader, configuration: configuration);
 
+            // CSVのレコードを取得
             var records = csv.GetRecords<ErrorHistory>();
+            // 最後のレコードを取得
             var lastRecord = records?.Last();
             if (lastRecord == null)
             {
                 return;
             }
 
+            // 最後のレコードのハッシュ値を計算
             var hash = new SHA1CryptoServiceProvider().ComputeHash(Encoding.UTF8.GetBytes($"{lastRecord.ModelName}{lastRecord.SerialNumber}{lastRecord.OccurredAt}"));
 
+            // 最後のレコードをログに出力
             _logger.LogInformation($"C# Blob trigger function Processed blob\n Name: {name} \n Data:"
             + $"\n  OccurredAt       : {lastRecord.OccurredAt.Trim()}"
             + $"\n  TimeZone         : {lastRecord.TimeZone.Trim()}"
@@ -56,17 +62,15 @@ namespace ErrorList.Functions
             + $"\n  ErrorMillFileName: {lastRecord.ErrorMillFileName.Trim().Replace("\"", "")}"
             + $"\n  GetHashCode()    : {hash}");
 
-            //var content = await blobStreamReader.ReadToEndAsync();
-            //_logger.LogInformation($"C# Blob trigger function Processed blob\n Name: {name} \n Data: {content}");
-
-            var uri = @"https://localhost:8081";
-            var key = @"C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
+            // Cosmos DBの設定
+            var cosmosDbUri = Environment.GetEnvironmentVariable("CosmosDbUri");
+            var cosmosDbKey = Environment.GetEnvironmentVariable("CosmosDbKey");
             var databaseName = "DWX";
             var collectionName = "Errors";
 
-            var client = new CosmosClient(accountEndpoint: uri, authKeyOrResourceToken: key);
-            var container = client.GetContainer(databaseName, collectionName);
-            var feedOptions = new QueryRequestOptions { MaxItemCount = -1 };
+            // Cosmos DBに接続
+            var client = new CosmosClient(accountEndpoint: cosmosDbUri, authKeyOrResourceToken: cosmosDbKey);
+            var container = client.GetContainer(databaseId: databaseName, containerId: collectionName);
 
             try
             {
@@ -86,14 +90,16 @@ namespace ErrorList.Functions
                     MillingFileName = lastRecord.MillingFileName.Trim().Replace("\"", ""),
                     ErrorMillFileName = lastRecord.ErrorMillFileName.Trim().Replace("\"", ""),
                 };
-                Console.WriteLine("\nCreating item");
+                _logger.LogInformation("Creating an item..");
+                // Cosmos DBにデータを登録/更新
                 ItemResponse<dynamic> response = await container.UpsertItemAsync<dynamic>(
                     errorHistory, new PartitionKey(errorHistory.ModelName));
                 dynamic createdErrorHistory = response.Resource;
+                _logger.LogInformation($"Created item in database with id: {createdErrorHistory.id}");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogError($"Error: {e.Message}");
             }
         }
 
