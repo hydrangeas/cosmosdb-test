@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34407.89
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorList.Functions", "ErrorList.Functions\ErrorList.Functions.csproj", "{42F823F5-B41C-49E9-A66E-1F03069A05BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ErrorList.Functions", "ErrorList.Functions\ErrorList.Functions.csproj", "{42F823F5-B41C-49E9-A66E-1F03069A05BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorList.Web", "ErrorList.Web\ErrorList.Web.csproj", "{C4E26A28-9762-496B-910B-29F1932CF13A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{42F823F5-B41C-49E9-A66E-1F03069A05BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42F823F5-B41C-49E9-A66E-1F03069A05BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42F823F5-B41C-49E9-A66E-1F03069A05BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4E26A28-9762-496B-910B-29F1932CF13A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4E26A28-9762-496B-910B-29F1932CF13A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4E26A28-9762-496B-910B-29F1932CF13A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4E26A28-9762-496B-910B-29F1932CF13A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
