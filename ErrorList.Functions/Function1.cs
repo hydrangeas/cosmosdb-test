@@ -45,7 +45,7 @@ namespace ErrorList.Functions
             }
 
             // 最後のレコードのハッシュ値を計算
-            var hash = new SHA1CryptoServiceProvider().ComputeHash(Encoding.UTF8.GetBytes($"{lastRecord.ModelName}{lastRecord.SerialNumber}{lastRecord.OccurredAt}"));
+            var hash = SHA1.HashData(Encoding.UTF8.GetBytes($"{lastRecord.ModelName}{lastRecord.SerialNumber}{lastRecord.OccurredAt}"));
 
             // 最後のレコードをログに出力
             _logger.LogInformation($"C# Blob trigger function Processed blob\n Name: {name} \n Data:"
